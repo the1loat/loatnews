@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Management System</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        /* Landing Page Styling */
+        #landing-page {
+            display: block;
+            background: linear-gradient(to bottom, #1a237e, #4caf50);
+            color: white;
+            padding: 50px;
+            height: 100vh;
+        }
+
+        #landing-page h1 {
+            font-style: italic;
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        #landing-page p {
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+
+        #landing-page button {
+            background-color: #4caf50;
+            color: white;
+            font-size: 1.2em;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Login Page Styling */
+        #login-section {
+            display: none;
+            background: black;
+            color: lightgreen;
+            height: 100vh;
+            padding: 20px;
+            text-align: center;
+        }
+
+        #login-section::before {
+            content: "01010101101010101011101010";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                90deg,
+                rgba(0, 0, 0, 0.8),
+                rgba(0, 255, 0, 0.2) 2px
+            );
+            animation: binaryMove 3s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes binaryMove {
+            from {
+                transform: translateY(0);
+            }
+            to {
+                transform: translateY(-100%);
+            }
+        }
+
+        #login-section input {
+            font-size: 1.5em;
+            padding: 10px;
+            border: 3px solid lightgreen;
+            border-radius: 8px;
+            margin: 20px;
+            width: 80%;
+            color: green;
+            background: black;
+        }
+
+        #login-section button {
+            background: #4caf50;
+            color: white;
+            font-size: 1.5em;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Admin Panel */
+        #admin-panel {
+            display: none;
+            padding: 20px;
+            background-color: #d7ccc8;
+        }
+
+        .admin-controls button {
+            margin: 5px;
+        }
+
+        /* News Styling */
+        #user-view {
+            display: none;
+            background-color: black;
+            color: green;
+            padding: 20px;
+            text-align: left;
+        }
+
+        #user-view h2 {
+            color: lightgreen;
+        }
+
+        #user-view p {
+            color: lime;
+        }
+
+        .news-box {
+            background-color: #262626;
+            border: 1px solid lightgreen;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+        }
+
+        /* Inputs, Buttons, and Text Areas */
+        input, textarea, button {
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #5d4037;
+            color: white;
+            padding: 10px;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+
+        #scroll-text {
+            overflow: hidden;
+            white-space: nowrap;
+            animation: scroll 20s linear infinite; /* Slower speed */
+        }
+
+        @keyframes scroll {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* Login Status Message Styling */
+        #login-status {
+            font-size: 1.5em;
+            padding: 30px;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            margin: 20px;
+        }
+
+        .admin-message {
+            background-color: green;
+            color: white;
+            animation: fadeIn 2s ease-in;
+        }
+
+        .user-message {
+            background-color: blue;
+            color: white;
+            animation: fadeIn 2s ease-in;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Modern Comment Section */
+        #comment-section {
+            margin-top: 20px;
+            background-color: #262626;
+            padding: 15px;
+            border-radius: 8px;
+            color: lime;
+            border: 1px solid lightgreen;
+        }
+
+        .comment-box {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: #333;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .comment-box button {
+            background-color: #4caf50;
+            color: white;
+            font-size: 1.2em;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Landing Page -->
+    <div id="landing-page">
+        <h1>Welcome to Our Journal</h1>
+        <p>Experience the world of news like never before. Stay informed, stay inspired.</p>
+        <button onclick="showLogin()">Enter</button>
+    </div>
+
+    <!-- Login Section -->
+    <div id="login-section">
+        <h3>Login</h3>
+        <input type="password" id="user-password" placeholder="Enter your password" required>
+        <button onclick="login()">Login</button>
+    </div>
+
+    <!-- Login Status Message -->
+    <div id="login-status"></div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel">
+        <h3>Admin Panel</h3>
+        <form id="news-form">
+            <input type="text" id="news-title" placeholder="News Title" required>
+            <textarea id="news-content" placeholder="News Content" required></textarea>
+            <button type="button" onclick="addNews()">Add News</button>
+        </form>
+        <h4>Manage Existing News</h4>
+        <div id="admin-news-list"></div>
+    </div>
+
+    <!-- User View -->
+    <div id="user-view">
+        <h2>Latest News</h2>
+        <div id="news-list">
+            <p>No news available yet.</p>
+        </div>
+    </div>
+
+    <!-- Comment Section -->
+    <div id="comment-section">
+        <h3>Leave a Comment:</h3>
+        <input type="text" id="comment-input" placeholder="Your comment here..." />
+        <button onclick="submitComment()">Submit Comment</button>
+        <div id="comments-list"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div id="scroll-text">Created by ENG. Abbas Xasan - Where technology meets creativity!</div>
+    </footer>
+
+    <script>
+        // Passwords
+        const adminPassword = "loaT";
+        const userPassword = "10102020";
+
+        // Load news from localStorage
+        const loadNews = () => {
+            const userNewsList = document.getElementById("news-list");
+            const adminNewsList = document.getElementById("admin-news-list");
+            const newsData = JSON.parse(localStorage.getItem("news")) || [];
+
+            // Update user view
+            userNewsList.innerHTML = newsData.length === 0 
+                ? "<p>No news available yet.</p>" 
+                : newsData.map(news => `
+                    <div class="news-box">
+                        <h4>${news.title}</h4>
+                        <p>${news.content}</p>
+                        <p>Likes: ${news.likes} Dislikes: ${news.dislikes} Views: ${news.views}</p>
+                        <button onclick="commentOnNews(${news.id})">Comment</button>
+                    </div>
+                `).join("");
+
+            // Update admin view with edit and delete options
+            adminNewsList.innerHTML = newsData.length === 0 
+                ? "<p>No news available yet.</p>" 
+                : newsData.map(news => `
+                    <div class="news-box">
+                        <h4>${news.title}</h4>
+                        <p>${news.content}</p>
+                        <div>
+                            <button onclick="editNews(${news.id})">Edit</button>
+                            <button onclick="deleteNews(${news.id})">Delete</button>
+                        </div>
+                        <p>Likes: ${news.likes} Dislikes: ${news.dislikes} Views: ${news.views}</p>
+                        <div>Comments:</div>
+                        <ul>
+                            ${news.comments.map(comment => `<li>${comment}</li>`).join("")}
+                        </ul>
+                    </div>
+                `).join("");
+        };
+
+        // Save news to localStorage
+        const saveNews = (newsData) => {
+            localStorage.setItem("news", JSON.stringify(newsData));
+            loadNews();
+        };
+
+        // Show login form
+        const showLogin = () => {
+            document.getElementById("landing-page").style.display = "none";
+            document.getElementById("login-section").style.display = "block";
+        };
+
+        // Handle login
+        const login = () => {
+            const password = document.getElementById("user-password").value;
+            const loginStatus = document.getElementById("login-status");
+
+            if (password === adminPassword) {
+                loginStatus.classList.add('admin-message');
+                loginStatus.classList.remove('user-message');
+                loginStatus.innerHTML = "Welcome, Admin! You can now manage the news.";
+                document.getElementById("login-section").style.display = "none";
+                document.getElementById("admin-panel").style.display = "block";
+                document.getElementById("user-view").style.display = "block";
+            } else if (password === userPassword) {
+                loginStatus.classList.add('user-message');
+                loginStatus.classList.remove('admin-message');
+                loginStatus.innerHTML = "Welcome, User! Enjoy the latest news.";
+                document.getElementById("login-section").style.display = "none";
+                document.getElementById("user-view").style.display = "block";
+            } else {
+                loginStatus.classList.add('user-message');
+                loginStatus.classList.remove('admin-message');
+                loginStatus.innerHTML = "Incorrect password! Please try again.";
+            }
+
+            loadNews();
+        };
+
+        // Add news
+        const addNews = () => {
+            const title = document.getElementById("news-title").value;
+            const content = document.getElementById("news-content").value;
+            const newsData = JSON.parse(localStorage.getItem("news")) || [];
+
+            if (title && content) {
+                const newNews = {
+                    id: newsData.length + 1,
+                    title,
+                    content,
+                    likes: 0,
+                    dislikes: 0,
+                    views: 0,
+                    comments: []
+                };
+
+                newsData.push(newNews);
+                saveNews(newsData);
+                alert("News added successfully!");
+                document.getElementById("news-title").value = "";
+                document.getElementById("news-content").value = "";
+            } else {
+                alert("Please fill in both the title and content.");
+            }
+        };
+
+        // Edit news
+        const editNews = (id) => {
+            const newsData = JSON.parse(localStorage.getItem("news")) || [];
+            const news = newsData.find(news => news.id === id);
+            const newTitle = prompt("Edit Title:", news.title);
+            const newContent = prompt("Edit Content:", news.content);
+
+            if (newTitle && newContent) {
+                news.title = newTitle;
+                news.content = newContent;
+                saveNews(newsData);
+            }
+        };
+
+        // Delete news
+        const deleteNews = (id) => {
+            let newsData = JSON.parse(localStorage.getItem("news")) || [];
+            newsData = newsData.filter(news => news.id !== id);
+            saveNews(newsData);
+        };
+
+        // Comment on news
+        const commentOnNews = (id) => {
+            const comment = prompt("Enter your comment:");
+            if (comment) {
+                const newsData = JSON.parse(localStorage.getItem("news")) || [];
+                const news = newsData.find(news => news.id === id);
+                news.comments.push(comment);
+                saveNews(newsData);
+            }
+        };
+
+        // Submit comment
+        const submitComment = () => {
+            const comment = document.getElementById("comment-input").value;
+            if (comment) {
+                const commentsList = document.getElementById("comments-list");
+                commentsList.innerHTML += `<p>${comment}</p>`;
+                document.getElementById("comment-input").value = "";
+            } else {
+                alert("Please enter a comment.");
+            }
+        };
+
+        // Initial load
+        loadNews();
+    </script>
+</body>
+</html>
